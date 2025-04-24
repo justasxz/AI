@@ -28,10 +28,11 @@ import optuna
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras import layers
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
-from optuna.integration import TFKerasPruningCallback, tensorboard
+from optuna.integration import TFKerasPruningCallback
 
 # --- data prep (example) ---
 iris = load_iris()
@@ -70,7 +71,8 @@ def objective(trial):
     # 4) fit with pruning callback
     callbacks = [
         tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True),
-        TFKerasPruningCallback(trial, "val_loss")
+        TFKerasPruningCallback(trial, "val_loss"),
+        TensorBoard(log_dir="logs/fit/" + str(trial.number), histogram_freq=1, write_graph=True, write_images=True)
     ]
     
     model.fit(
